@@ -12,10 +12,10 @@ func configure(id: String, source_index: int, texture_path: String) -> void:
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
 	tooltip_text = "%s\nDrag to another tank thumbnail to transfer." % id.replace("_", " ").capitalize()
 	text = id.replace("_", " ").capitalize()
+	custom_minimum_size = Vector2(130, 90)
 	if texture_path != "" and ResourceLoader.exists(texture_path):
 		icon = load(texture_path)
 		expand_icon = true
-		icon_max_width = 220
 		text = ""
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
