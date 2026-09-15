@@ -1,6 +1,6 @@
 # Asset slots
 
-The prototype runs without art by falling back to simple colors/labels. Add the approved art as WebP files using these exact paths and the game will load them automatically.
+The prototype auto-loads approved WebP art from the exact paths below.
 
 ## First-person scenes
 
@@ -39,7 +39,7 @@ Tank shells should have true alpha transparency outside the glass/frame.
 - `assets/tank_items/bark_cave.webp`
 - `assets/tank_items/water_dish.webp`
 
-These are separate assets. Choosing a tank item will eventually auto-place it into a defined slot rather than requiring free placement.
+These are separate assets. Choosing a tank item auto-places it into a defined slot rather than requiring free placement.
 
 ## Frog life-cycle assets — first-person side view
 
@@ -48,7 +48,7 @@ These are separate assets. Choosing a tank item will eventually auto-place it in
 - `assets/lifecycle/froglet_tank.webp`
 - `assets/lifecycle/juvenile_tank.webp`
 
-The juvenile/final pre-adult frog art should use neutral grayscale/mask-friendly shading so the runtime color system can apply the inherited hue.
+The juvenile/final pre-adult frog art uses neutral grayscale/mask-friendly shading so the runtime color system can apply the inherited hue.
 
 ## Adult frog masks
 
@@ -60,7 +60,7 @@ Bullfrog:
 - `assets/frogs/bullfrog_side_mask.webp`
 - `assets/frogs/bullfrog_top_mask.webp`
 
-The side assets are for Home/Lab tanks. The top assets are for habitat exploration. These should be neutral grayscale/transparent cutouts so the game can tint them using the 0–359 inherited color number while retaining highlights, shadows, and markings.
+The side assets are for Home/Lab tanks. The top assets are for habitat exploration. These are neutral grayscale/transparent cutouts so the game can tint them using the 0–359 inherited color number while retaining highlights, shadows, and markings.
 
 ## Transparency
 
