@@ -40,7 +40,7 @@ var tanks: Array[Dictionary] = [
 		"capacity": 2,
 		"frog_ids": [],
 		"background": "rock_moss",
-		"items": ["water_dish", "fern", "bark_hide", "leaf_litter", "rock_cluster"]
+		"items": ["water_dish", "fern", "bark_cave", "leaf_litter", "rock_cluster"]
 	}
 ]
 var selected_tank := 0
@@ -176,7 +176,6 @@ func skip_time() -> void:
 	advance_time()
 
 func end_day() -> void:
-	# Growth happens once per completed field day.
 	for frog in frogs:
 		if not frog.get("fed_today", false):
 			frog["condition"] = max(0, frog.get("condition", 100) - 5)
