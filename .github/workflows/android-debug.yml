@@ -39,11 +39,24 @@ jobs:
           fi
           godot --version
 
+      - name: Install Android API 34 build tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses >/dev/null 2>&1 || true
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" "platform-tools" "platforms;android-34" "build-tools;34.0.0" >/dev/null 2>&1 || true
+          test -d "$ANDROID_HOME/platforms/android-34"
+          test -d "$ANDROID_HOME/build-tools/34.0.0"
+
       - name: Import project and validate scripts
         shell: bash
         run: |
           set -euxo pipefail
-          godot --headless --verbose --editor --quit
+          godot --headless --verbose --editor --quit 2>&1 | tee /tmp/godot-import.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Failed to load script" /tmp/godot-import.log; then
+            echo "Godot script validation failed."
+            exit 1
+          fi
 
       - name: Export debug APK
         shell: bash
