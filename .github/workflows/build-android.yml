@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare Godot 4.3 export templates and Android settings
+      - name: Prepare Godot 4.3 Android toolchain
         shell: bash
         run: |
           set -euxo pipefail
@@ -37,14 +37,24 @@ jobs:
           if [ -d /root/.config/godot ]; then
             cp -a /root/.config/godot/. "$HOME/.config/godot/" || true
           fi
-
           SETTINGS="$HOME/.config/godot/editor_settings-4.3.tres"
           touch "$SETTINGS"
           printf '\nexport/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"\n' >> "$SETTINGS"
           printf 'export/android/android_sdk_path = "%s"\n' "${ANDROID_HOME:-/usr/lib/android-sdk}" >> "$SETTINGS"
-          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+
+          keytool -genkeypair -v \
+            -keystore /tmp/champion-frog-debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
           test -d "${ANDROID_HOME:-/usr/lib/android-sdk}"
           test -d "$HOME/.local/share/godot/export_templates/4.3.stable"
+          test -s /tmp/champion-frog-debug.keystore
 
       - name: Import project and check GDScript
         shell: bash
@@ -58,6 +68,10 @@ jobs:
 
       - name: Export debug APK
         shell: bash
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: /tmp/champion-frog-debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           set -euxo pipefail
           mkdir -p build/android
