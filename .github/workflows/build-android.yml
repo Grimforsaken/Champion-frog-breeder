@@ -1,0 +1,69 @@
+name: Build Android Test APK
+
+on:
+  push:
+    branches:
+      - prototype-core
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Godot 4.3 export templates and Android settings
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p ~/.local/share/godot/export_templates
+          if [ -d /root/.local/share/godot/export_templates/4.3.stable ]; then
+            cp -a /root/.local/share/godot/export_templates/4.3.stable ~/.local/share/godot/export_templates/4.3.stable
+          elif [ -d /root/.local/share/godot/templates/4.3.stable ]; then
+            cp -a /root/.local/share/godot/templates/4.3.stable ~/.local/share/godot/export_templates/4.3.stable
+          fi
+          mkdir -p ~/.config/godot
+          if [ -d /root/.config/godot ]; then
+            cp -a /root/.config/godot/. ~/.config/godot/ || true
+          fi
+          SETTINGS="$HOME/.config/godot/editor_settings-4.3.tres"
+          touch "$SETTINGS"
+          grep -q 'export/android/java_sdk_path' "$SETTINGS" || echo 'export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"' >> "$SETTINGS"
+          if [ -d /opt/android-sdk ]; then
+            grep -q 'export/android/android_sdk_path' "$SETTINGS" || echo 'export/android/android_sdk_path = "/opt/android-sdk"' >> "$SETTINGS"
+          elif [ -d /root/android-sdk ]; then
+            grep -q 'export/android/android_sdk_path' "$SETTINGS" || echo 'export/android/android_sdk_path = "/root/android-sdk"' >> "$SETTINGS"
+          fi
+
+      - name: Import project and check GDScript
+        shell: bash
+        run: |
+          set -euxo pipefail
+          godot --headless --editor --path . --import --quit
+
+      - name: Export debug APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build/android
+          godot --headless --path . --verbose --export-debug "Android" build/android/champion-frog-breeder-debug.apk
+          test -s build/android/champion-frog-breeder-debug.apk
+          ls -lh build/android/champion-frog-breeder-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: champion-frog-breeder-debug-apk
+          path: build/android/champion-frog-breeder-debug.apk
+          if-no-files-found: error
+          retention-days: 14
