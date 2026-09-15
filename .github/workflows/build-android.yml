@@ -26,30 +26,35 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          mkdir -p ~/.local/share/godot/export_templates
+          mkdir -p "$HOME/.local/share/godot/export_templates"
           if [ -d /root/.local/share/godot/export_templates/4.3.stable ]; then
-            cp -a /root/.local/share/godot/export_templates/4.3.stable ~/.local/share/godot/export_templates/4.3.stable
+            cp -a /root/.local/share/godot/export_templates/4.3.stable "$HOME/.local/share/godot/export_templates/4.3.stable"
           elif [ -d /root/.local/share/godot/templates/4.3.stable ]; then
-            cp -a /root/.local/share/godot/templates/4.3.stable ~/.local/share/godot/export_templates/4.3.stable
+            cp -a /root/.local/share/godot/templates/4.3.stable "$HOME/.local/share/godot/export_templates/4.3.stable"
           fi
-          mkdir -p ~/.config/godot
+
+          mkdir -p "$HOME/.config/godot"
           if [ -d /root/.config/godot ]; then
-            cp -a /root/.config/godot/. ~/.config/godot/ || true
+            cp -a /root/.config/godot/. "$HOME/.config/godot/" || true
           fi
+
           SETTINGS="$HOME/.config/godot/editor_settings-4.3.tres"
           touch "$SETTINGS"
-          grep -q 'export/android/java_sdk_path' "$SETTINGS" || echo 'export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"' >> "$SETTINGS"
-          if [ -d /opt/android-sdk ]; then
-            grep -q 'export/android/android_sdk_path' "$SETTINGS" || echo 'export/android/android_sdk_path = "/opt/android-sdk"' >> "$SETTINGS"
-          elif [ -d /root/android-sdk ]; then
-            grep -q 'export/android/android_sdk_path' "$SETTINGS" || echo 'export/android/android_sdk_path = "/root/android-sdk"' >> "$SETTINGS"
-          fi
+          printf '\nexport/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"\n' >> "$SETTINGS"
+          printf 'export/android/android_sdk_path = "%s"\n' "${ANDROID_HOME:-/usr/lib/android-sdk}" >> "$SETTINGS"
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+          test -d "${ANDROID_HOME:-/usr/lib/android-sdk}"
+          test -d "$HOME/.local/share/godot/export_templates/4.3.stable"
 
       - name: Import project and check GDScript
         shell: bash
         run: |
-          set -euxo pipefail
-          godot --headless --editor --path . --import --quit
+          set -o pipefail
+          godot --headless --editor --path . --import --quit 2>&1 | tee godot-import.log
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script" godot-import.log; then
+            echo "Godot reported a script error during import."
+            exit 1
+          fi
 
       - name: Export debug APK
         shell: bash
