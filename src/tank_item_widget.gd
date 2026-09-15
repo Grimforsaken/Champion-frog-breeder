@@ -15,7 +15,6 @@ func configure(id: String, source_index: int, texture_path: String) -> void:
 	if texture_path != "" and ResourceLoader.exists(texture_path):
 		icon = load(texture_path)
 		expand_icon = true
-		icon_max_width = 220
 		text = ""
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
