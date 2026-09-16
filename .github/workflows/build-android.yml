@@ -91,6 +91,16 @@ jobs:
             exit 1
           fi
 
+      - name: Run startup smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 3 2>&1 | tee godot-runtime.log
+          if grep -E "SCRIPT ERROR|Invalid call|Invalid access|Attempt to call|Failed to load script" godot-runtime.log; then
+            echo "Godot reported a runtime error during startup."
+            exit 1
+          fi
+
       - name: Export debug APK
         shell: bash
         env:
