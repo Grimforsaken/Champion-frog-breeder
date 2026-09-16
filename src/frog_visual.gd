@@ -32,6 +32,11 @@ func _update_visual() -> void:
 	material = mat
 
 func _asset_path() -> String:
+	# Temporary safe fallback: the original bullfrog side WebP in the first
+	# playtest was corrupt. Keep bullfrogs visible at home by using the valid
+	# regular side recolor mask until the dedicated bullfrog side art is replaced.
+	if species == "bullfrog" and view_mode == "side":
+		return "res://assets/frogs/regular_side_mask.webp"
 	var prefix := "bullfrog" if species == "bullfrog" else "regular"
 	var suffix := "top" if view_mode == "top" else "side"
 	return "res://assets/frogs/%s_%s_mask.webp" % [prefix, suffix]
