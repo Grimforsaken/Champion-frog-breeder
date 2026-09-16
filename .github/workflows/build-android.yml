@@ -22,29 +22,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Restore gameplay WebP assets
+      - name: Restore staged lifecycle art
         shell: bash
         run: |
           set -euxo pipefail
-          cat build_assets/frog_missing_assets.b64.part* > /tmp/frog_missing_assets.b64
-          base64 -d /tmp/frog_missing_assets.b64 > /tmp/frog_missing_assets.zip
-          echo "59b0f17a44ca8dbdfa2e61c74c219d25326a4e7046cccdad7099fcfdc178a606  /tmp/frog_missing_assets.zip" | sha256sum -c -
-          unzip -o /tmp/frog_missing_assets.zip -d .
-          test -s assets/lifecycle/eggs_petri_dish.webp
-          test -s assets/lifecycle/tadpole_tank.webp
+          mkdir -p assets/lifecycle
+          base64 -d build_assets/EXACT_froglet.b64 > assets/lifecycle/froglet_tank.webp
           test -s assets/lifecycle/froglet_tank.webp
-          test -s assets/lifecycle/juvenile_tank.webp
-          test -s assets/tanks/tank_small_01.webp
-          test -s assets/tanks/tank_small_02.webp
-          test -s assets/tanks/tank_small_03.webp
-          test -s assets/tanks/tank_small_04.webp
-          test -s assets/tank_backgrounds/rock_moss.webp
-          test -s assets/tank_backgrounds/tropical_vines.webp
-          test -s assets/tank_backgrounds/bark_moss.webp
+
+          # Core scene/frog art and directly committed starter tank items must be present.
+          test -s assets/scenes/lab.webp
+          test -s assets/scenes/shop.webp
+          test -s assets/habitats/backyard_puddle.webp
+          test -s assets/habitats/pond.webp
+          test -s assets/home/table.webp
+          test -s assets/frogs/regular_side_mask.webp
+          test -s assets/frogs/regular_top_mask.webp
+          test -s assets/frogs/bullfrog_side_mask.webp
+          test -s assets/frogs/bullfrog_top_mask.webp
           test -s assets/tank_items/water_dish.webp
-          test -s assets/tank_items/fern.webp
           test -s assets/tank_items/bark_cave.webp
-          test -s assets/tank_items/bark_bridge.webp
           test -s assets/tank_items/leaf_litter.webp
           test -s assets/tank_items/moss_mound.webp
           test -s assets/tank_items/rock_cluster.webp
