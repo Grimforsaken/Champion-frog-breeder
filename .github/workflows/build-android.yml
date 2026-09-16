@@ -30,7 +30,6 @@ jobs:
           base64 -d build_assets/EXACT_froglet.b64 > assets/lifecycle/froglet_tank.webp
           test -s assets/lifecycle/froglet_tank.webp
 
-          # Core scene/frog art and directly committed starter tank items must be present.
           test -s assets/scenes/lab.webp
           test -s assets/scenes/shop.webp
           test -s assets/habitats/backyard_puddle.webp
@@ -98,6 +97,16 @@ jobs:
           godot --headless --path . --quit-after 3 2>&1 | tee godot-runtime.log
           if grep -E "SCRIPT ERROR|Invalid call|Invalid access|Attempt to call|Failed to load script" godot-runtime.log; then
             echo "Godot reported a runtime error during startup."
+            exit 1
+          fi
+
+      - name: Verify interactive UI screens
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://src/ui_smoke_test.gd 2>&1 | tee ui-smoke.log
+          grep -q "UI_SMOKE PASS" ui-smoke.log
+          if grep -q "UI_SMOKE_FAIL" ui-smoke.log; then
             exit 1
           fi
 
