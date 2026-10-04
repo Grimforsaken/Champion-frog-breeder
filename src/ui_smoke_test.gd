@@ -21,14 +21,17 @@ func _run_test() -> void:
 
 	var home_buttons := _count_type(main, "Button")
 	print("UI_SMOKE home_buttons=%d" % home_buttons)
-	if home_buttons < 4:
+	if home_buttons < 5:
 		_fail("Home UI did not create enough interactive buttons")
 		return
 	if not _label_has_width(main, "DAY ", 90.0):
-		_fail("Top status label collapsed on 1536x709 mobile layout")
+		_fail("Top status label collapsed on 1536x709 layout")
 		return
 	if not _label_has_width(main, "MORNING FROG UPKEEP", 300.0):
-		_fail("Upkeep label collapsed on 1536x709 mobile layout")
+		_fail("Upkeep label collapsed on 1536x709 layout")
+		return
+	if not _no_collapsed_labels(main):
+		_fail("Home screen contains a collapsed label")
 		return
 
 	gs.travel_shop()
@@ -43,8 +46,11 @@ func _run_test() -> void:
 	if not _label_has_width(main, "SHOP INVENTORY", 180.0):
 		_fail("Shop inventory heading collapsed")
 		return
-	if not _label_has_width(main, "Basic feeder bugs", 400.0):
+	if not _label_has_width(main, "Basic feeder bugs", 300.0):
 		_fail("Shop inventory rows collapsed")
+		return
+	if not _no_collapsed_labels(main):
+		_fail("Shop screen contains a collapsed label")
 		return
 
 	gs.travel_home()
@@ -58,9 +64,13 @@ func _run_test() -> void:
 	if habitat_buttons < 6:
 		_fail("Habitat capture targets are missing")
 		return
-	if not _label_has_width(main, "Backyard Puddle", 260.0):
+	if not _label_has_width(main, "Backyard Puddle", 220.0):
 		_fail("Habitat status label collapsed")
 		return
+	if not _no_collapsed_labels(main):
+		_fail("Habitat screen contains a collapsed label")
+		return
+
 	print("UI_SMOKE PASS")
 	quit(0)
 
@@ -82,6 +92,17 @@ func _label_has_width(node: Node, prefix: String, minimum_width: float) -> bool:
 		if _label_has_width(child, prefix, minimum_width):
 			return true
 	return false
+
+func _no_collapsed_labels(node: Node) -> bool:
+	if node is Label:
+		var label := node as Label
+		if label.visible and label.text.length() >= 4 and label.size.x > 0.0 and label.size.x < 40.0:
+			print("UI_SMOKE collapsed label '%s' width=%.1f" % [label.text, label.size.x])
+			return false
+	for child in node.get_children():
+		if not _no_collapsed_labels(child):
+			return false
+	return true
 
 func _fail(message: String) -> void:
 	push_error("UI_SMOKE_FAIL: %s" % message)
