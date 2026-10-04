@@ -1,4 +1,4 @@
-extends "res://src/main_v3.gd"
+extends "res://src/main_v4.gd"
 
 # Mobile/tablet presentation layer.  The original prototype used nested
 # Containers for the full HUD.  On some Android aspect ratios those Containers
@@ -6,13 +6,14 @@ extends "res://src/main_v3.gd"
 # and the menu expanded over the scene.  This layer uses anchored Controls with
 # fixed screen regions instead.
 
-func _label(text: String, size := 18) -> Label:
+func _label(text: String, size: int = 18, wrap: bool = false, min_width: float = 0.0) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", Color.WHITE)
-	l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	l.clip_text = true
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap else TextServer.AUTOWRAP_OFF
+	l.clip_text = not wrap
+	if min_width > 0.0:\n\t\tl.custom_minimum_size.x = min_width
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return l
 
