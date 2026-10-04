@@ -13,7 +13,8 @@ func _label(text: String, size: int = 18, wrap: bool = false, min_width: float =
 	l.add_theme_color_override("font_color", Color.WHITE)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap else TextServer.AUTOWRAP_OFF
 	l.clip_text = not wrap
-	if min_width > 0.0:\n\t\tl.custom_minimum_size.x = min_width
+	if min_width > 0.0:
+		l.custom_minimum_size.x = min_width
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return l
 
