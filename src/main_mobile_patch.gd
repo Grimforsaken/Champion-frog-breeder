@@ -118,9 +118,9 @@ func _render_home() -> void:
 			if shown >= 4:
 				break
 			var frog_id := int(frog["id"])
-			var in_tank := frog.get("tank_id", "") != ""
-			var action := Callable(self, "_move_frog_to_case").bind(frog_id) if in_tank else Callable(self, "_put_frog_in_tank").bind(frog_id)
-			var destination := "CASE" if in_tank else "TANK"
+			var in_tank: bool = str(frog.get("tank_id", "")) != ""
+			var action: Callable = Callable(self, "_move_frog_to_case").bind(frog_id) if in_tank else Callable(self, "_put_frog_in_tank").bind(frog_id)
+			var destination: String = "CASE" if in_tank else "TANK"
 			_mobile_button(bottom, "%s → %s" % [frog["name"], destination], Rect2(x, 0.49, 0.22, 0.38), action, 12)
 			x += 0.23
 			shown += 1
